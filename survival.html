@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harry Potter Audio Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700;900&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cinzel', serif;
+            background: #0d0a05;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #c9a84c;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Stars background */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(255,255,200,0.6) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(255,255,200,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 55% 15%, rgba(255,255,200,0.5) 0%, transparent 100%),
+                radial-gradient(1px 1px at 75% 80%, rgba(255,255,200,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(255,255,200,0.6) 0%, transparent 100%),
+                radial-gradient(1px 1px at 20% 85%, rgba(255,255,200,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 65% 50%, rgba(255,255,200,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 35%, rgba(255,255,200,0.5) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 65%, rgba(255,255,200,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 5% 50%, rgba(255,255,200,0.3) 0%, transparent 100%);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* Hogwarts watermark */
+        body::before {
+            content: "⚡ HARRY POTTER ⚡";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 60px;
+            font-weight: 900;
+            font-family: 'Cinzel', serif;
+            color: rgba(201, 168, 76, 0.04);
+            letter-spacing: 15px;
+            z-index: -1;
+            white-space: nowrap;
+        }
+
+        /* Magical floating particles */
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #f5d76e, #c9a84c);
+            animation: floatUp linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        .container {
+            background: linear-gradient(160deg, rgba(20,14,5,0.97) 0%, rgba(10,8,2,0.98) 100%);
+            border-radius: 4px;
+            box-shadow:
+                0 0 0 1px #5a3e1b,
+                0 0 0 3px #2a1f0a,
+                0 0 30px rgba(201, 168, 76, 0.25),
+                0 0 80px rgba(201, 168, 76, 0.1),
+                inset 0 1px 0 rgba(201,168,76,0.15);
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ornate corner decorations */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 8px; left: 8px; right: 8px; bottom: 8px;
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+
+        /* Top decorative line */
+        .container::after {
+            content: '✦ ✦ ✦';
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(201,168,76,0.4);
+            font-size: 10px;
+            letter-spacing: 8px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #c9a84c;
+            margin-bottom: 30px;
+            margin-top: 18px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-family: 'Cinzel', serif;
+            text-shadow: 0 0 20px rgba(201,168,76,0.6), 0 0 40px rgba(201,168,76,0.2);
+        }
+
+        .passcode-container {
+            margin: 30px 0;
+        }
+
+        .passcode-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .digit-box {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #5a3e1b;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #c9a84c;
+            background: rgba(20,10,0,0.8);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px rgba(201,168,76,0.2), inset 0 1px 0 rgba(201,168,76,0.1);
+            font-family: 'Cinzel', serif;
+            position: relative;
+        }
+
+        .digit-box::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1px solid rgba(201,168,76,0.1);
+            border-radius: 1px;
+        }
+
+        .digit-box.filled {
+            border-color: #c9a84c;
+            background: rgba(201,168,76,0.12);
+            box-shadow: 0 0 15px rgba(201,168,76,0.5), inset 0 1px 0 rgba(201,168,76,0.2);
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            max-width: 250px;
+            margin: 0 auto 30px;
+        }
+
+        .key {
+            width: 70px;
+            height: 70px;
+            border: 1px solid #5a3e1b;
+            border-radius: 3px;
+            background: linear-gradient(160deg, rgba(30,18,5,0.9), rgba(15,8,0,0.95));
+            color: #c9a84c;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 0 8px rgba(201,168,76,0.6);
+            box-shadow: 0 0 5px rgba(201,168,76,0.15), inset 0 1px 0 rgba(201,168,76,0.1);
+            font-family: 'Cinzel', serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .key::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(201,168,76,0.15), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .key:hover {
+            background: linear-gradient(160deg, rgba(50,30,5,0.9), rgba(25,15,0,0.95));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(201,168,76,0.3), inset 0 1px 0 rgba(201,168,76,0.2);
+            border-color: #c9a84c;
+        }
+
+        .key:hover::after {
+            opacity: 1;
+        }
+
+        .key:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 5px rgba(201,168,76,0.2);
+        }
+
+        .back-btn {
+            padding: 12px 24px;
+            border: 1px solid #5a3e1b;
+            border-radius: 3px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(160deg, rgba(30,18,5,0.9), rgba(15,8,0,0.95));
+            color: #c9a84c;
+            text-shadow: 0 0 8px rgba(201,168,76,0.5);
+            box-shadow: 0 0 8px rgba(201,168,76,0.15);
+            margin-top: 20px;
+            font-family: 'Cinzel', serif;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(160deg, rgba(50,30,5,0.9), rgba(25,15,0,0.95));
+            border-color: #c9a84c;
+            box-shadow: 0 0 15px rgba(201,168,76,0.3);
+        }
+
+        .audio-player {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(10,6,0,0.8);
+            border-radius: 3px;
+            border: 1px solid #5a3e1b;
+            box-shadow: 0 0 15px rgba(201,168,76,0.15), inset 0 1px 0 rgba(201,168,76,0.08);
+        }
+
+        audio {
+            width: 100%;
+            filter: sepia(1) saturate(3) hue-rotate(5deg) brightness(0.85);
+        }
+
+        .screen-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+
+
+        /* Golden shimmer flicker */
+        @keyframes flicker {
+            0% { opacity: 1; }
+            5% { opacity: 0.85; }
+            10% { opacity: 1; }
+            25% { opacity: 0.92; }
+            30% { opacity: 1; }
+            100% { opacity: 1; }
+        }
+
+        h1, .key, .digit-box, .back-btn {
+            animation: flicker 6s infinite;
+        }
+
+        .loading {
+            color: #8a6a2a;
+            margin-top: 10px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Lightning bolt icon */
+        .lightning {
+            color: #c9a84c;
+            font-size: 14px;
+            margin: 0 5px;
+            text-shadow: 0 0 10px rgba(201,168,76,0.8);
+        }
+    </style>
+</head>
+<body>
+    <!-- Magical floating particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- Passcode Screen -->
+        <div id="passcode-screen" class="screen active">
+            <h1><i class="fas fa-hat-wizard"></i> Enter Passcode</h1>
+            
+            <div class="passcode-container">
+                <div class="passcode-display">
+                    <div class="digit-box" id="digit-0">•</div>
+                    <div class="digit-box" id="digit-1">•</div>
+                    <div class="digit-box" id="digit-2">•</div>
+                    <div class="digit-box" id="digit-3">•</div>
+                    <div class="digit-box" id="digit-4">•</div>
+                </div>
+                
+                <div class="keypad">
+                    <!-- Each button passes its letter directly -->
+                    <button class="key" onclick="enterLetter('C')">C</button>
+                    <button class="key" onclick="enterLetter('S')">S</button>
+                    <button class="key" onclick="enterLetter('E')">E</button>
+                    <button class="key" onclick="enterLetter('D')">D</button>
+                    <button class="key" onclick="enterLetter('T')">T</button>
+                    <button class="key" onclick="enterLetter('N')">N</button>
+                    <button class="key" onclick="enterLetter('K')">K</button>
+                    <button class="key" onclick="enterLetter('I')">I</button>
+                    <button class="key" onclick="enterLetter('A')">A</button>
+                    <button class="key" onclick="clearPasscode()"><i class="fas fa-backspace"></i></button>
+                    <button class="key" onclick="enterLetter('0')">0</button>
+                    <button class="key" onclick="submitPasscode()"><i class="fas fa-check"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Correct Audio Screen -->
+        <div id="correct-audio-screen" class="screen">
+            <h1 class="screen-title"><i class="fas fa-check-circle"></i> Access Granted</h1>
+            
+            <div class="audio-player">
+                <audio id="correct-audio-player" controls>
+                    <source src="https://www.dropbox.com/scl/fi/tq9j6nndwyh1ppyr73dz2/WhatsApp-Audio-2026-02-25-at-1.32.04-AM.mp4?rlkey=x4fyrpz5dmdsyq7fksayu9azo&st=k9stjgvl&dl=1" type="audio/mp4">
+                    Your browser does not support the audio element.
+                </audio>
+                <div id="correct-loading" class="loading">Loading audio...</div>
+            </div>
+            
+            <button class="back-btn" onclick="goBackToPasscode()">
+                <i class="fas fa-arrow-left"></i> Back to Passcode
+            </button>
+        </div>
+        
+        <!-- Wrong Audio Screen -->
+        <div id="wrong-audio-screen" class="screen">
+            <h1 class="screen-title"><i class="fas fa-check-circle"></i> Access Granted</h1>
+            
+            <div class="audio-player">
+                <audio id="wrong-audio-player" controls>
+                    <source src="https://www.dropbox.com/scl/fi/97p8jn71zk4b4feyoz9iv/WhatsApp-Audio-2026-02-25-at-1.32.11-AM.mp4?rlkey=rkm90vizoepha9kmsfpap4610&st=u8rduj77&dl=1" type="audio/mp4">
+                    Your browser does not support the audio element.
+                </audio>
+                <div id="wrong-loading" class="loading">Loading audio...</div>
+            </div>
+            
+            <button class="back-btn" onclick="goBackToPasscode()">
+                <i class="fas fa-arrow-left"></i> Back to Passcode
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // The correct passcode as letters (matching the keypad labels)
+        const correctPasscode = 'SNAKE';
+
+        // Application state — stores letters, not digit codes
+        let currentPasscode = '';
+
+        // Generate magical floating particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDuration = (8 + Math.random() * 12) + 's';
+            particle.style.animationDelay = (Math.random() * 15) + 's';
+            particle.style.width = (2 + Math.random() * 4) + 'px';
+            particle.style.height = particle.style.width;
+            particlesContainer.appendChild(particle);
+        }
+
+        // Screen management
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function goBackToPasscode() {
+            const correctAudio = document.getElementById('correct-audio-player');
+            const wrongAudio = document.getElementById('wrong-audio-player');
+
+            correctAudio.pause();
+            correctAudio.currentTime = 0;
+            wrongAudio.pause();
+            wrongAudio.currentTime = 0;
+
+            currentPasscode = '';
+            updatePasscodeDisplay();
+            showScreen('passcode-screen');
+        }
+
+        // Accept a letter from the keypad
+        function enterLetter(letter) {
+            if (currentPasscode.length < 5) {
+                currentPasscode += letter;
+                updatePasscodeDisplay();
+
+                if (currentPasscode.length === 5) {
+                    setTimeout(() => submitPasscode(), 300);
+                }
+            }
+        }
+
+        function clearPasscode() {
+            if (currentPasscode.length > 0) {
+                currentPasscode = currentPasscode.slice(0, -1);
+                updatePasscodeDisplay();
+            }
+        }
+
+        function updatePasscodeDisplay() {
+            for (let i = 0; i < 5; i++) {
+                const digitBox = document.getElementById(`digit-${i}`);
+                if (i < currentPasscode.length) {
+                    digitBox.textContent = '●';
+                    digitBox.classList.add('filled');
+                } else {
+                    digitBox.textContent = '•';
+                    digitBox.classList.remove('filled');
+                }
+            }
+        }
+
+        function submitPasscode() {
+            if (currentPasscode.length === 5) {
+                if (currentPasscode === correctPasscode) {
+                    // Correct passcode
+                    const audioPlayer = document.getElementById('correct-audio-player');
+                    const loadingElement = document.getElementById('correct-loading');
+
+                    loadingElement.style.display = 'block';
+                    loadingElement.textContent = 'Loading audio...';
+
+                    audioPlayer.onloadeddata = function() {
+                        loadingElement.style.display = 'none';
+                    };
+
+                    audioPlayer.onerror = function() {
+                        loadingElement.textContent = 'Error loading audio. Please check the URL.';
+                    };
+
+                    audioPlayer.load();
+                    showScreen('correct-audio-screen');
+                } else {
+                    // Wrong passcode
+                    const audioPlayer = document.getElementById('wrong-audio-player');
+                    const loadingElement = document.getElementById('wrong-loading');
+
+                    loadingElement.style.display = 'block';
+                    loadingElement.textContent = 'Loading audio...';
+
+                    audioPlayer.onloadeddata = function() {
+                        loadingElement.style.display = 'none';
+                    };
+
+                    audioPlayer.onerror = function() {
+                        loadingElement.textContent = 'Error loading audio. Please check the URL.';
+                    };
+
+                    audioPlayer.load();
+                    showScreen('wrong-audio-screen');
+                }
+
+                // Clear passcode after a short delay
+                setTimeout(() => {
+                    currentPasscode = '';
+                    updatePasscodeDisplay();
+                }, 500);
+            }
+        }
+
+        // Initialize display
+        updatePasscodeDisplay();
+    </script>
+</body>
+</html>
