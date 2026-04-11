@@ -1,4 +1,4 @@
-# 🔮 Harry Potter Voice Note
+# Harry Potter Voice Note
 
 <div align="center">
 
@@ -13,90 +13,77 @@
 
 ---
 
-## 🖼️ Preview
+## What Is This?
 
-*(Add a screenshot of the webpage here)*
+An interactive, password-gated webpage that plays a voice note when the correct password is entered. Built with Harry Potter aesthetics — parchment textures, themed fonts, and atmospheric UI cues.
 
----
-
-## 🧙 What Is This?
-
-An interactive, password-gated webpage that plays a voice note when the correct password is entered. Built with Harry Potter aesthetics — think flickering candles, parchment textures, and magical UI cues.
-
-Originally used as a clue dispenser in a **college escape room event**.
+Originally used as a clue dispenser in a **college escape room event**. Part of the same Harry Potter experience as [Harry-puttar-snitch-game](https://github.com/Arvoxis/Harry-puttar-snitch-game).
 
 ---
 
-## ✨ Features
+## Features
 
-- 🔐 Password-protected access
-- 🎙️ Auto-plays a voice note on correct entry
-- 🏰 Harry Potter themed UI (fonts, colours, atmosphere)
-- 📱 Works on mobile browsers
-- 🧩 Designed as an escape room puzzle element
+- Password-protected access
+- Auto-plays a voice note on correct entry
+- Harry Potter themed UI
+- Works on mobile browsers
+- No dependencies — pure HTML/CSS/JS
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-No build tools, no dependencies — pure HTML/CSS/JS.
+No build tools, no dependencies.
 
 ```bash
-# Clone the repo
 git clone https://github.com/Arvoxis/Harry-puttar-voicenote.git
 cd Harry-puttar-voicenote
 
 # Open in browser
-open index.html
+open survival.html
 ```
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Harry-puttar-voicenote/
-├── index.html        # Main page with password gate
-├── style.css         # Harry Potter themed styles
-├── script.js         # Password logic + audio playback
-├── assets/           # Audio file(s), images
+├── survival.html    # Main page — password gate + audio playback
+├── LICENSE
 └── README.md
 ```
 
 ---
 
-## 🕹️ How It Works
+## How It Works
 
 1. User lands on the themed webpage
 2. Prompted to enter a password (the escape room clue)
 3. Correct password → voice note plays (a hint or story element)
 4. Wrong password → a suitably dramatic rejection
 
-The password and audio file can be swapped out easily for any event.
+The password and audio file can be swapped out for any event.
 
 ---
 
-## 🌐 Live Demo
+## Live Demo
 
-*(Deploy to GitHub Pages for free — takes 2 minutes)*
+Deploy to GitHub Pages for free — takes 2 minutes:
 
-Go to **Settings → Pages → Source: main branch** and your site goes live at:
+**Settings → Pages → Source: main branch**
+
+Your site goes live at:
 `https://arvoxis.github.io/Harry-puttar-voicenote`
 
 ---
 
-## 🎓 Background
-
-Part of the same Harry Potter themed escape room as [Harry-puttar-snitch-game](https://github.com/Arvoxis/Harry-puttar-snitch-game). Players had to solve a riddle to get the password, then listen to the voice note for their next clue.
-
----
-
-## 📄 License
+## License
 
 MIT License — feel free to reuse for your own events.
 
 ---
 
 <div align="center">
-Made with 🪄 by <a href="https://github.com/Arvoxis">Arvoxis</a>
+Made with magic by <a href="https://github.com/Arvoxis">Arvoxis</a>
 </div>
